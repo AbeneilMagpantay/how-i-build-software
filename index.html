@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<style>:root{color-scheme:light}body{margin:0;font:14px system-ui}img{max-width:100%}[hidden]{display:none!important}.mermaid svg{max-width:100%;height:auto}</style>
+</head>
+<body>
+<title>How I Build Software</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  /* Layout: an engineering record read top to bottom - a narrow measure, a left rail of section labels on wide screens,
+     evidence set in mono. One accent, used for rules and the gate diagram. */
+  :root {
+    --paper: #f6f7f5;
+    --card: #ffffff;
+    --ink: #1c2530;
+    --muted: #5a6572;
+    --line: #d7dde2;
+    --accent: #1f6b74;
+    --accent-soft: #e3f0f1;
+    --warn: #8a4b12;
+    --display: "Source Serif 4", Georgia, "Times New Roman", serif;
+    --body: "IBM Plex Sans", "Segoe UI", Helvetica, Arial, sans-serif;
+    --mono: "IBM Plex Mono", Consolas, "Courier New", monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #131920; --card: #1a222b; --ink: #e5e9ed; --muted: #9ba6b2; --line: #2b3540;
+      --accent: #74c4cc; --accent-soft: #19333a; --warn: #e0a467; color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #131920; --card: #1a222b; --ink: #e5e9ed; --muted: #9ba6b2; --line: #2b3540;
+    --accent: #74c4cc; --accent-soft: #19333a; --warn: #e0a467; color-scheme: dark;
+  }
+  body { background: var(--paper); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.6;
+         padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+         padding-block: 32px 64px; }
+  .page { max-width: 980px; margin: 0 auto; }
+  header.top { display: grid; gap: 12px; padding-bottom: 28px; border-bottom: 1px solid var(--line); }
+  .eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  h1 { font-family: var(--display); font-weight: 600; font-size: clamp(32px, 5vw, 46px); line-height: 1.1; margin: 0; text-wrap: balance; }
+  .lede { max-width: 62ch; color: var(--muted); margin: 0; font-size: 17px; }
+  .who { display: flex; flex-wrap: wrap; gap: 8px 24px; font-family: var(--mono); font-size: 13px; color: var(--muted); }
+  nav.toc { display: flex; flex-wrap: wrap; gap: 6px 18px; padding: 18px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+  nav.toc a { color: var(--accent); text-decoration: none; border-bottom: 1px solid transparent; }
+  nav.toc a:hover, nav.toc a:focus-visible { border-bottom-color: var(--accent); outline: none; }
+  section { display: grid; grid-template-columns: 1fr; gap: 10px 32px; padding: 36px 0; border-bottom: 1px solid var(--line); }
+  @media (min-width: 820px) { section { grid-template-columns: 180px minmax(0, 1fr); } }
+  section > .label { font-family: var(--mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); padding-top: 6px; }
+  section > .content { min-width: 0; display: grid; gap: 16px; }
+  h2 { font-family: var(--display); font-weight: 600; font-size: 28px; line-height: 1.2; margin: 0; text-wrap: balance; }
+  h3 { font-family: var(--body); font-weight: 600; font-size: 16px; margin: 0; }
+  p { margin: 0; max-width: 68ch; }
+  ul, ol { margin: 0; padding-left: 20px; max-width: 68ch; display: grid; gap: 8px; }
+  li { padding-left: 2px; }
+  strong { font-weight: 600; }
+  a { color: var(--accent); }
+  .timeline { display: grid; gap: 0; border-left: 2px solid var(--line); margin-left: 6px; }
+  .timeline > div { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 6px 14px; padding: 10px 0 14px 18px; position: relative; }
+  .timeline > div::before { content: ""; position: absolute; left: -7px; top: 18px; width: 12px; height: 12px; border-radius: 50%;
+                           background: var(--accent); border: 2px solid var(--paper); }
+  .timeline time { font-family: var(--mono); font-size: 13px; color: var(--muted); padding-top: 2px; font-variant-numeric: tabular-nums; }
+  @media (max-width: 520px) { .timeline > div { grid-template-columns: 1fr; } }
+  .lessons { display: grid; gap: 12px; }
+  .lesson { display: grid; gap: 4px; padding: 14px 16px; background: var(--card); border: 1px solid var(--line); border-radius: 6px; }
+  .lesson h3 { color: var(--accent); }
+  .stack { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; }
+  .stack > div { display: grid; gap: 6px; padding: 14px 16px; border: 1px solid var(--line); border-radius: 6px; background: var(--card); min-width: 0; }
+  .stack h3 { font-family: var(--mono); font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+  .stack p { font-size: 15px; }
+  .diagram { overflow-x: auto; padding: 12px 0; }
+  pre.mermaid { margin: 0; min-width: 640px; }
+  .evidence { font-family: var(--mono); font-size: 13.5px; line-height: 1.55; background: var(--card); border: 1px solid var(--line);
+              border-radius: 6px; padding: 14px 16px; overflow-x: auto; }
+  .evidence table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+  .evidence th, .evidence td { text-align: left; padding: 6px 12px 6px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .evidence th { font-weight: 500; color: var(--muted); }
+  .evidence tr:last-child td { border-bottom: none; }
+  .callout { padding: 14px 16px; background: var(--accent-soft); border-radius: 6px; max-width: 68ch; }
+  .fill { color: var(--warn); font-family: var(--mono); font-size: 14px; }
+  .links { display: grid; gap: 8px; max-width: 68ch; }
+  .links div { display: grid; grid-template-columns: minmax(0, 1fr); gap: 2px; padding: 10px 0; border-bottom: 1px dashed var(--line); }
+  .links .name { font-weight: 600; }
+  .links .url { font-family: var(--mono); font-size: 13px; word-break: break-all; }
+  footer { padding-top: 24px; font-family: var(--mono); font-size: 12px; color: var(--muted); }
+  @media (prefers-reduced-motion: no-preference) { nav.toc a { transition: border-color 120ms ease; } }
+</style>
+
+<div class="page">
+  <header class="top">
+    <div class="eyebrow">Abeneil Magpantay &middot; first interview walkthrough &middot; Blue Harbour</div>
+    <h1>How I build software</h1>
+    <p class="lede">My path as a developer, the tools I use and why, how I check my own work, one piece of work I am proud of and how I knew it worked, and how a live system keeps changing without breaking.</p>
+    <div class="who">
+      <span>Software engineer: Python backends, AI agents, Google Cloud</span>
+      <span>Camarines Sur, Philippines (UTC+8)</span>
+      <span>October 2026</span>
+    </div>
+  </header>
+
+  <nav class="toc" aria-label="Sections">
+    <a href="#journey">The journey</a>
+    <a href="#learned">What I learned coding with AI</a>
+    <a href="#stack">The stack</a>
+    <a href="#quality">Quality, tests, security</a>
+    <a href="#gate">The review gate</a>
+    <a href="#proud">A piece of work</a>
+    <a href="#changing">Changing a live system safely</a>
+    <a href="#hours">Studies and hours</a>
+    <a href="#links">Links</a>
+  </nav>
+
+  <section id="journey">
+    <div class="label">The journey</div>
+    <div class="content">
+      <h2>From a four-person bug backlog to running one company's operations software</h2>
+      <div class="timeline">
+        <div><time>Jul to Aug 2025</time><div><strong>Fillr, Naga City. Software developer intern.</strong> React, PHP and MySQL in a four-person team. The bug backlog came down by about 30% while I was there. The first time my code went to people who did not know me.</div></div>
+        <div><time>Jan 2026</time><div><strong>Mindrift. AI pilot, freelance.</strong> Writing and grading coding tasks used to train large models, and correcting model output against programming standards. This is where I learned to read what a model writes as a reviewer, not as a user.</div></div>
+        <div><time>Jan to Feb 2026</time><div><strong>Own projects.</strong> A Facebook auto-reply bot, my first LLM workflow with a real webhook. Then the <strong>Agentic Reasoning Engine</strong>: a LangGraph agent over a Qdrant vector store, with a small local model (ModernBERT) deciding whether each retrieved document is relevant before the expensive model is called. In the project's own evaluation that cut model API spend by about 70%.</div></div>
+        <div><time>Mar 2026</time><div><strong>Pet Let, Adelaide. Software engineer (contract), remote.</strong> The only engineer on TARA and Mission Control, the system a short-stay property manager runs its day on. A FastAPI service on Cloud Run, Postgres on Cloud SQL, a Next.js portal on Vercel. Gemini turns Google Chat posts into ranked tasks. It connects to Operto, NewBook, Gmail, Sheets and SMS, and has a field inspection app.</div></div>
+        <div><time>May 2026</time><div><strong>cothink, the attempt I stopped.</strong> I tried to build a harness that ran Claude and Gemini side by side so each would catch the other's mistakes. It ran, but I never used it. Claude Code, Codex and Cursor were already better than what I was building, and finishing it would have been a product in itself. I stopped, and kept the one idea that was worth keeping: two models that disagree catch more than one that agrees. That idea became the review gate below.</div></div>
+        <div><time>Jul 2026</time><div><strong>The Cloud Run lesson.</strong> A bulk photo re-host, started as a background task, froze without a single log line. Cloud Run only gives the container CPU while a request is open. Every bulk job now runs inside a scheduled endpoint that does the work during the request, in chunks, and can be called again safely. The rule is written in the project notes.</div></div>
+        <div><time>Sep 2026</time><div><strong>The self-match fix</strong> (below): a silent bug that had been closing tasks by itself since March. Found, fixed in five places, and proved against every message the system had ever taken in.</div></div>
+        <div><time>Oct 2026</time><div><strong>Now.</strong> Reports for the ops team, room counts feeding the field app, a production data fix run as one audited transaction with a receipt and an undo, and this page.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="learned">
+    <div class="label">What I learned</div>
+    <div class="content">
+      <h2>What coding with AI taught me</h2>
+      <p>I use Claude Code every day as the builder. These are the rules I work by now. Each one cost me something before I wrote it down.</p>
+      <div class="lessons">
+        <div class="lesson"><h3>A model's summary of its own work is not evidence.</h3><p>I judge a change by what I can see: the diff, the test output, the live page. If a worker says a test passed, I open the run.</p></div>
+        <div class="lesson"><h3>A test must be able to fail.</h3><p>New tests run against the old code first and must fail there for the right reason. Then I break the changed code on purpose (mutation testing) to make sure the tests notice.</p></div>
+        <div class="lesson"><h3>Made-up data proves nothing.</h3><p>Counts and populations come from production, read-only, over a connection that has first proved it cannot write. Data I invent only proves the invention.</p></div>
+        <div class="lesson"><h3>When a check cannot run, stop. And a test must never be able to write to production.</h3><p>My checking scripts stop and say so when something is missing. Once, a test reached a real write path on production. Since then tests call pure functions with read-only credentials.</p></div>
+        <div class="lesson"><h3>Two models that disagree catch more than one that agrees.</h3><p>Gemini and GPT find different kinds of mistakes in the same change. Where they disagree is where I look. I decide, and when I reject a critique I write down why, so it is not raised again.</p></div>
+        <div class="lesson"><h3>Give the AI the whole brief, then check its work before it ships.</h3><p>The brief carries the file paths, the rules and the tests to add. The worker never pushes, deploys or sends anything. I read what it made, then I merge, deploy and reply.</p></div>
+        <div class="lesson"><h3>Saved is not the same as shown.</h3><p>A row in the database and what the ops lead sees on screen are two different facts. Every UI change is checked in a signed-in browser at the user's own screen size before I say it is live.</p></div>
+        <div class="lesson"><h3>Write everything down.</h3><p>Every promise to a stakeholder gets a dated line in a ledger. Every message I send gets a record of what went out and what came back. Someone in another time zone can pick up the work from the repository.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="stack">
+    <div class="label">The stack</div>
+    <div class="content">
+      <h2>Ordinary tools, typed, cheap at this size</h2>
+      <p>Each piece was chosen for a small team that needs the system to be right more than it needs it to be clever.</p>
+      <div class="stack">
+        <div><h3>Backend</h3><p><strong>Python, FastAPI, Pydantic, asyncpg.</strong> One language for the service, the tooling and the checking scripts. Typed data at every boundary.</p></div>
+        <div><h3>Data</h3><p><strong>PostgreSQL on Cloud SQL</strong>, with pgvector where search needs it. Managed backups, real transactions, and row versions an undo can check against.</p></div>
+        <div><h3>Runtime</h3><p><strong>Google Cloud Run, Cloud Scheduler, Secret Manager, Pub/Sub.</strong> Scales to zero, rollback is a traffic switch, and the client already ran on Google Workspace.</p></div>
+        <div><h3>Frontend</h3><p><strong>Next.js, React, Tailwind on Vercel.</strong> A portal people log in to and an installable web app for the field. Playwright for signed-in checks against the real deployment.</p></div>
+        <div><h3>Models</h3><p><strong>Gemini</strong> in production for classifying posts and drafting replies. Two workloads on <strong>Llama 3.3 through an OpenRouter gateway</strong>, so changing a model is a config change. Personal data is scrubbed before anything goes to a model.</p></div>
+        <div><h3>Tooling</h3><p><strong>Claude Code</strong> as the daily builder. <strong>MCP servers</strong> I wrote (the review gate) and ones I use (Playwright). pytest with mutation testing. Git, gcloud.</p></div>
+      </div>
+      <p>Why not n8n or Make: these integrations move money, door codes and guest data. Every write path needs to be code I can test, replay and roll back.</p>
+    </div>
+  </section>
+
+  <section id="quality">
+    <div class="label">Quality</div>
+    <div class="content">
+      <h2>What a change goes through before anyone sees it</h2>
+      <p>Every non-trivial change takes the same path. This is the real order, and each step leaves something I can show.</p>
+      <div class="diagram">
+<pre class="mermaid">
+flowchart LR
+  A[Brief: paths, rules, tests] --> B[Build on a branch]
+  B --> C[New tests fail on the old code]
+  C --> D[Break the code on purpose; tests must notice]
+  D --> E[Two-model review: Gemini + GPT]
+  E --> F[Secret scan on every file that leaves]
+  F --> G[Merge; check the build matches git]
+  G --> H[Signed-in check at desktop and phone width]
+  H --> I[Record, ledger line, reply]
+</pre>
+      </div>
+      <ul>
+        <li><strong>Testing.</strong> About 4,900 backend tests. A write path is rehearsed on a real throwaway Postgres, including two deliveries of the same event, lock waits, a lost commit reply and a killed connection, so the failure paths are run, not described.</li>
+        <li><strong>Review.</strong> Risky changes (database writes, messages to guests or owners, money, access) get up to two paid rounds of the two-model review. Everything else gets one reviewer told to find fault. What survives is my call, and the remaining risks are written down.</li>
+        <li><strong>Security.</strong> Secrets live in Secret Manager and the environment, never in code or chat. A scan refuses any file that looks like it carries a key before it leaves the machine. Door codes are encrypted at rest (AES-256-GCM). The service acts as one named Google Workspace account with a fixed list of permissions. Production checks run read-only and begin with a small test write inside a transaction that is always rolled back; the database must reject it before anything else runs.</li>
+        <li><strong>Deploys.</strong> Only from a tree that matches the remote exactly. Traffic always sits fully on the latest healthy revision. A check compares the uploaded build with the files in git, so an untracked file cannot slip into an image. Environment changes are merged, never replaced. A revision that fails to start never takes traffic.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="gate">
+    <div class="label">The review gate</div>
+    <div class="content">
+      <h2>The two-model review gate, and what it costs</h2>
+      <p>Before a non-trivial commit, a Gemini auditor and a GPT auditor read the same change through an MCP server I wrote. Both must pass. They find different kinds of mistakes, so the places where they disagree are the places worth reading. I decide. A critique I reject is written down so it is not raised again.</p>
+      <h3>How a review runs</h3>
+      <ul>
+        <li><strong>Paths, not pasted code.</strong> The server reads the files itself. A review pack is a set of exact excerpts with each file's hash, split by topic, each part under 45 KB because the reader cuts off above that. The packs include the mutation runs, not a claim that tests exist.</li>
+        <li><strong>Each round is judged on what it contains.</strong> The record of earlier actions is written truthfully, and a claim never gets stronger than its proof: local, committed, pushed, deployed and live are five different claims.</li>
+        <li><strong>The only gate is both auditors passing.</strong> There is no round counter. A review that is truly stuck goes to a person.</li>
+      </ul>
+      <h3>The cost problem</h3>
+      <p>The reviewers are paid API calls. A review that costs too much to run is a review nobody runs. The client's CEO agreed a monthly cap, so I built the limits into the server instead of relying on self-control:</p>
+      <ul>
+        <li>Paid review only for risky changes: database writes, guest or owner messages, money, access. Everything else gets one free reviewer.</li>
+        <li>Two paid rounds per change. A third needs a recorded reason. The prompt names the round the guard has counted, and if the count moves between reading and sending, the request is refused at no cost.</li>
+        <li>An input ceiling measured against the real tokenizer. My estimate (characters divided by four) ran about 8% under the billed count (55,188 estimated against 59,816 billed), so the estimated ceiling went from 60,000 to 55,000 to keep the real prompt under the cap.</li>
+        <li>The risks a skipped round leaves behind are written down and carried by the person running the work.</li>
+      </ul>
+      <div class="evidence">
+        <table>
+          <tr><th>Guard tests</th><td>67 tests on the guard alone, with made-up data and no network: a temporary config and ledger, no spend rows, no balance read. Mutants M6 to M12 were each caught by the test written for them.</td></tr>
+          <tr><th>What it caught</th><td>The second paid round on the backfill script found three real defects in its failure handling before it ran on production. A wording review of a message to the CEO found a button and a real record I had missed.</td></tr>
+          <tr><th>Pack integrity</th><td>The self-match review packs: 13 excerpts re-checked line by line against the committed files, 0 mismatches.</td></tr>
+          <tr><th>Known limits</th><td>The auditors are behind on recent facts, so anything date-sensitive is checked on the web first; their design critiques still count. One auditor sometimes cuts off on long packs, which is why packs are split.</td></tr>
+        </table>
+      </div>
+      <div class="callout">The gate is only worth having if it is cheap enough to use every time. The guard is what made it routine.</div>
+    </div>
+  </section>
+
+  <section id="proud">
+    <div class="label">A piece of work</div>
+    <div class="content">
+      <h2>The self-match fix, and how I knew it worked</h2>
+      <p>Mission Control turns Google Chat posts into tasks, and a reply in the thread can close or acknowledge the task. In September I traced why some tasks were closing themselves seconds after they were filed. The cause: a task's own source message could match as a reply to the task it had just created, so the system marked the task done by its creator. It had been happening quietly since March.</p>
+      <h3>The fix</h3>
+      <p>A real reply has a different message id from the first message in the thread. I changed the matching rule in five places so a message can never be checked against a task it created, kept real thread replies working, and made the retry path safe, because on a retry the message's own tasks already exist.</p>
+      <h3>How I knew</h3>
+      <div class="evidence">
+        <table>
+          <tr><th>Measured</th><td>Production, last eight weeks: 103 tasks closed and 462 acknowledged by their own source post. 125 closures and 93 acknowledgements came from real replies; those had to keep working. The bug dated from March, before the code was under version control.</td></tr>
+          <tr><th>Replay</th><td>The new rule was run over every message the system had ever taken in, 39,375 of them: 39,008 first posts, 367 real replies, none of any other shape. No message falls outside the rule.</td></tr>
+          <tr><th>Reproduced</th><td>The production self-closure happened again on a throwaway local Postgres with the fix removed, and could not happen with the fix in place.</td></tr>
+          <tr><th>Mutants</th><td>Ten deliberate breaks of the fix, from reversing the rule to removing all five changes. The tests caught all ten. A control run with the database removed was refused as invalid instead of passing quietly.</td></tr>
+          <tr><th>Retry path</th><td>On a retry the message's own tasks already exist, so the early checks could have matched them. All three are guarded, and removing any guard is caught by a test.</td></tr>
+          <tr><th>After</th><td>Deployed the same day. The startup migration logged, and the new revision took all traffic. Nothing it had closed was reopened by code: the ops lead got a reviewed list, real open work first, with what had happened to each since, and the decision stayed with them.</td></tr>
+        </table>
+      </div>
+      <p>The measurement and the replay mattered more than the fix. They turned "I think this is right" into numbers the ops lead could check, and they named the one change in behaviour before it shipped: status posts that used to close themselves now stay open until someone presses Done.</p>
+    </div>
+  </section>
+
+  <section id="changing">
+    <div class="label">Changing safely</div>
+    <div class="content">
+      <h2>Keeping a live system changing safely</h2>
+      <p>The system changes most days, with people in two time zones depending on it. Three habits carry that.</p>
+      <ul>
+        <li><strong>Data fixes are transactions with receipts.</strong> Earlier this month I rewrote 77 task titles in production. First a read-only dry run that proved the plan. Then one transaction that locked the rows, worked out every title again from the locked values, wrote a hashed before-snapshot to disk before the first UPDATE, committed, read the rows back on a separate connection and wrote a hashed receipt. A lost commit reply is settled from the server's own transaction record, never from counts. The undo restores only rows the run still owns, matched by value and row version.</li>
+        <li><strong>Rollouts are snapshot, change, diff.</strong> A rollout for the field app saved a snapshot of 108 property identity rows before the deploy and compared it after the nightly sync. Exactly two rows changed, the two properties the change was meant to connect, and nothing else appeared, vanished or moved.</li>
+        <li><strong>When the reviewers are right, the code changes.</strong> Two review rounds on that backfill script found three real defects in its failure handling: a false "rolled back" message if a file write failed after the commit, a hashing step that could not be resumed, and a receipt trusted for existing rather than for its contents. All three were fixed, with the failures injected on a real local Postgres, before the script touched production.</li>
+      </ul>
+      <div class="callout">The two things I would most like to show live: the review gate reading a change, and the deploy chain refusing a tree that does not match the remote.</div>
+    </div>
+  </section>
+
+  <section id="hours">
+    <div class="label">Studies and hours</div>
+    <div class="content">
+      <h2>How my studies fit NZ and Australian hours</h2>
+      <p>I am in the final year of a BS in Computer Science at Ateneo de Naga University, due to finish in May 2027. Since March 2026 I have run the Pet Let work on Adelaide hours alongside it, so I know the arrangement works in practice, not only on paper.</p>
+      <ul>
+        <li>Adelaide's working day starts at 06:30 my time and New Zealand's at 04:00 or 05:00, so the overlap with both sits in my morning and early afternoon.</li>
+        <li>My final year is thesis only. There are no classes to schedule around. I work on the thesis from home, and the only campus commitments are the defences, two a semester, four in the year. I can work full-time on NZ and Australian hours; the thesis takes the rest of the day.</li>
+        <li>Everything I do is written down as it happens, so someone in another time zone can pick up where I left off without a call.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="links">
+    <div class="label">Links</div>
+    <div class="content">
+      <h2>Work you can open</h2>
+      <p>The Pet Let system is private client work, so there is no public link; I can walk you through it live. These are open:</p>
+      <div class="links">
+        <div><span class="name">Agentic Reasoning Engine</span><span>A RAG agent on LangGraph and Qdrant that checks its own retrievals, with tests and docker-compose.</span><span class="url">https://github.com/AbeneilMagpantay/Agentic-Reasoning-Engine</span></div>
+        <div><span class="name">Adaptive HMM</span><span>Undergraduate thesis. In a backtest over the 2025 test window, a hidden Markov model that detects market regimes cut the maximum drawdown from 35% to 1.3%.</span><span class="url">https://github.com/AbeneilMagpantay/Adaptive-HMM</span></div>
+        <div><span class="name">The two-model review server (demo repository)</span><span>The MCP server behind the review gate, with its cost guard and 191 tests, extracted from the working tool.</span><span class="url">https://github.com/AbeneilMagpantay/dual-brain-review (private; access shared with mercurial-weasel)</span></div>
+      </div>
+    </div>
+  </section>
+
+  <footer>Prepared for the first interview. Every number on this page comes from a record I can show.</footer>
+</div>
+<script type="module">
+import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.esm.min.mjs';
+const dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+mermaid.initialize({ startOnLoad: true, theme: dark ? 'dark' : 'neutral', securityLevel: 'strict' });
+</script>
+</body>
+</html>
